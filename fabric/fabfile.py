@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from fabric.api import env, task, cd
+from fabric.api import env, task, cd, sudo
 from fabric.contrib.files import uncomment, sed, upload_template
 from fabric.operations import prompt
 from fabric.utils import abort
