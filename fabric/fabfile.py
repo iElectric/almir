@@ -71,3 +71,23 @@ def install_almir():
         sudo('export PYTHON_EGG_CACHE="/home/almir/.python-eggs"; bin/buildout', user='almir')
         sudo('export PYTHON_EGG_CACHE="/home/almir/.python-eggs"; bin/supervisord', user='almir')
 
+@task
+def remove_almir():
+    """Remove almir (bacula web interface)"""
+    print blue('Remove almir and user: %s ... ' % env.almir_user)
+
+    ans = prompt(red("This will delete the user and his home !!! (y,n,yes,no)"),
+        default='yes', validate='(y|Y|n|yes|no)'
+    )
+    if ans in ('y', 'yes', 'Y'):
+        pass
+    else:
+        abort('You do not agree.')
+
+    # kill all almir processes
+    sudo("pkill -u %s || true" % env.almir_user)
+
+    # !! WARNING !! user will be deleted
+    sudo("deluser --remove-home %s || true" % env.almir_user)
+    # TODO: check if projects group is empty, if so then delete it
+
