@@ -6,3 +6,5 @@ bconsole.conf
 docs/build/
 var/
 src/
+fabric/.installed.cfg
+fabric/parts/
