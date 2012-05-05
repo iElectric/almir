@@ -9,11 +9,14 @@ from fabric.colors import *
 
 from niteoweb.fabfile.server import create_project_user
 
+# doctag-settings-start
+
 ###
 #Settings
 ###
 
-# run almir as? (must be nonexisting user) (will be created)
+#
+# almir user (must be nonexisting user) (will be created)
 # the whole home will be deleted if you run remove_almir !!
 env.almir_user = 'almir'
 
@@ -49,6 +52,8 @@ env.tmp_context = {
         'bc_password': 'secret'
     }
 }
+
+# doctag-settings-end
 
 ###
 # Support functions
