@@ -70,9 +70,9 @@ class BConsole(object):
         return Popen(shlex.split(self.bconsole_command), stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
     def send_command(self, cmd):
-        p = self.start_process()
         log.debug('Sending command to bconsole: %s' % cmd)
-        stdout, stderr = p.communicate()
+        p = self.start_process()
+        stdout, stderr = p.communicate(cmd)
         log.debug('Command output by bconsole:')
         log.debug(stdout)
         return stdout

@@ -9,14 +9,16 @@
                 <th>Name</th>
                 <th>Volumes</th>
                 <th>Total backups</th>
+		<th>Select</th>
             </tr>
         </thead>
         <tbody>
             {% for storage in objects %}
-                <tr class="clickable-row" data-link="{{ request.route_url('storage_detail', id=storage.Storage.storageid) }}">
+                <tr>
                     <td>{{ macros.link(storage.Storage.render_name(request)) }}</td>
                     <td>{{ storage.num_volumes }}</td>
                     <td>{{ storage.Storage.format_byte_size(storage.total_backup_size) }}</td>
+		    <td><input type="checkbox" /></td>
                 </tr>
             {% endfor %}
         </tbody>
