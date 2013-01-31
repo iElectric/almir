@@ -118,7 +118,6 @@ Full           Backup    11  18-Mar-12 23:10    BackupCatalog      *unknown*
             start_process.communicate.return_value = ('error', 'error')
             self.assertFalse(b.mount_storage('File',0))
 
-
     def test_unmount_storage(self):
        b = BConsole()
        with patch.object(b, 'start_process') as mock_method:
@@ -154,7 +153,6 @@ Full           Backup    11  18-Mar-12 23:10    BackupCatalog      *unknown*
             start_process.communicate.return_value = ('error', 'error')
             self.assertFalse(b.delete(jobid=1))
 
-
     def test_create_label(self):
        b = BConsole()
        with patch.object(b, 'start_process') as mock_method:
@@ -167,14 +165,48 @@ Full           Backup    11  18-Mar-12 23:10    BackupCatalog      *unknown*
             start_process.communicate.return_value = ('successfully created', '')
             self.assertTrue(b.create_label(pool= 'test' , storage='test', label = 'testlabel'))
 
-
        with patch.object(b, 'start_process') as mock_method:
             start_process = mock_method.return_value
             start_process.communicate.return_value = ('successfully created', '')
             self.assertTrue(b.create_label(pool='test', label = 'testlabel' ))
 
-
        with patch.object(b, 'start_process') as mock_method:
             start_process = mock_method.return_value
             start_process.communicate.return_value = ('successfully created', '')
             self.assertTrue(b.create_label(pool='test', barcode = True))
+
+    def test_disable_job(self):
+       b = BConsole()
+       with patch.object(b, 'start_process') as mock_method:
+            start_process = mock_method.return_value
+            start_process.communicate.return_value = ('disabled', '')
+            self.assertTrue(b.disable_job('testjob'))
+
+       with patch.object(b, 'start_process') as mock_method:
+            start_process = mock_method.return_value
+            start_process.communicate.return_value = ('error', 'error')
+            self.assertFalse(b.disable_job('testjob'))
+
+    def test_enable_job(self):
+       b = BConsole()
+       with patch.object(b, 'start_process') as mock_method:
+            start_process = mock_method.return_value
+            start_process.communicate.return_value = ('enabled', '')
+            self.assertTrue(b.enable_job('testjob'))
+
+       with patch.object(b, 'start_process') as mock_method:
+            start_process = mock_method.return_value
+            start_process.communicate.return_value = ('error', 'error')
+            self.assertFalse(b.enable_job('testjob'))
+
+    def test_estimate_job(self):
+       b = BConsole()
+       with patch.object(b, 'start_process') as mock_method:
+            start_process = mock_method.return_value
+            start_process.communicate.return_value = ("2000 OK estimate files=1000 bytes=10,000,000", '')
+            self.assertTrue(b.estimate_job('testjob')==(1000,10000000))
+
+       with patch.object(b, 'start_process') as mock_method:
+            start_process = mock_method.return_value
+            start_process.communicate.return_value = ('error', 'error')
+            self.assertTrue(b.estimate_job('testjob')==(-1,-1))

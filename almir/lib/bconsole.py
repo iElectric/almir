@@ -164,7 +164,8 @@ class BConsole(object):
     def mount_storage(self, storage, slot):
         """Mounts the volume contained in the slot *slot* on the storage *storage*"""
 
-        stdout = self.send_command('mount=%s slot=%d\n' % (storage,slot))
+        cmd = 'mount=%s slot=%d\n' % (storage,slot)
+        stdout = self.send_command(cmd)
 
         is_ok = stdout.find('is mounted')
 
@@ -173,7 +174,8 @@ class BConsole(object):
 
     def unmount_storage(self, storage):
         """Unmounts the storage *storage*"""
-        stdout = self.send_command('unmount=%s \n' % storage)
+        cmd = 'unmount=%s \n' % storage
+        stdout = self.send_command(cmd)
 
         is_ok = stdout.find('unmounted')
 
@@ -191,9 +193,9 @@ class BConsole(object):
         if jobid:
             cmd = ' jobid=%d ' % (jobid)
 
-        strcmd = 'delete %s \n' % cmd
+        cmd = 'delete %s \n' % cmd
 
-        stdout = self.send_command(strcmd)
+        stdout = self.send_command(cmd)
 
         is_ok = stdout.find('deleted')
 
@@ -205,18 +207,57 @@ class BConsole(object):
         if not label and not barcode:
             return False # we need or manual label or barcode
 
-        strcmd = 'label pool=%s storage=%s' % (pool,storage)
+        cmd = 'label pool=%s storage=%s' % (pool,storage)
      
         if barcode:
-            strcmd += ( " barcode\n" )
+            cmd += ( " barcode\n" )
         else:
-            strcmd += ( "\n%s\n" % label )
+            cmd += ( "\n%s\n" % label )
 
-        stdout = self.send_command(strcmd)
+        stdout = self.send_command(cmd)
 
         is_ok = stdout.find('successfully created')
 
         return is_ok != -1 
+
+
+    def enable_job(self, jobname ):
+        """Enables job named as passed by argument"""
+
+        cmd = 'enable job=%s\n' % jobname
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('enabled')
+
+        return is_ok != -1 
+
+
+    def disable_job(self, jobname):
+        """Disables job named as passed by argument"""
+
+        cmd = 'disable job=%s\n' % jobname
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('disabled')
+
+        return is_ok != -1 
+
+
+    def estimate_job(self, jobname ):
+        """Estimates a job returns -1,-1 if something goes wrong"""
+
+        cmd = 'estimate job=%s\n' % jobname
+        stdout = self.send_command(cmd)
+
+        try:
+            retcode, files, bytes = re.findall('\\d+',stdout.replace(',',''))
+        except ValueError:
+            retcode = -1
+
+        if int(retcode) != 2000:
+            return -1,-1
+        else:
+            return int(files), int(bytes)
 
 
     def send_command_by_polling(self, command, process=None):
