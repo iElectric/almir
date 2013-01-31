@@ -7,7 +7,7 @@
          maxlen: 200 */
 /*global $, jQuery, tabletools_swf, deform, datatables_route */
 
-// Taken from: https://gist.github.com/1101534
+//  Taken from: https://gist.github.com/1101534
 jQuery.extend({
     parseQuerystring: function () {
         var nvpair = {},
