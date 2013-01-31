@@ -88,7 +88,7 @@ $(function () {
                 },
                 "oTableTools": {
                     sSwfPath: tabletools_swf,
-                    aButtons: ["copy", "xls", "pdf", "print"]
+                    aButtons: ["copy", "csv", "pdf", "print"]
                 },
                 "iDisplayLength": 50,
                 "bDestroy": true,
