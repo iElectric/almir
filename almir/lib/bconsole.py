@@ -7,7 +7,11 @@ import tempfile
 from contextlib import contextmanager
 from subprocess import Popen, PIPE
 
-from almir.lib.utils import nl2br
+#from almir.lib.utils import nl2br
+from utils import nl2br
+
+import logging
+log = logging.getLogger(__name__) 
 
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -65,6 +69,14 @@ class BConsole(object):
     def start_process(self):
         return Popen(shlex.split(self.bconsole_command), stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
+    def send_command(self, cmd):
+        p = self.start_process()
+        log.debug('Sending command to bconsole: %s' % cmd)
+        stdout, stderr = p.communicate()
+        log.debug('Command output by bconsole:')
+        log.debug(stdout)
+        return stdout
+
     def is_running(self):
         try:
             self.get_version()
@@ -73,8 +85,8 @@ class BConsole(object):
             return False
 
     def get_version(self):
-        p = self.start_process()
-        stdout, stderr = p.communicate('version\n')
+        stdout = self.send_command('version\n')
+
         version = filter(lambda s: 'Version' in s, stdout.split('\n'))
         if version:
             return version[-1]
@@ -82,8 +94,8 @@ class BConsole(object):
             raise DirectorNotRunning
 
     def get_jobs_settings(self):
-        p = self.start_process()
-        stdout, stderr = p.communicate('show job')
+        stdout = self.send_command('show job\n')
+
         jobs = []
         for job in stdout.split('Job:'):
             jobs.append(JOBS_DEF_RE.find(stdout))
@@ -111,8 +123,8 @@ class BConsole(object):
         if when:
             cmd += " when=%s" % when
 
-        p = self.start_process()
-        stdout, stderr = p.communicate(cmd + "\nyes\n")
+        stdout =  self.send_command(cmd + "\nyes\n")
+
         if True:
             return "jobid"
         else:
@@ -121,8 +133,8 @@ class BConsole(object):
 
     def get_upcoming_jobs(self, days=1):
         """"""
-        p = self.start_process()
-        stdout, stderr = p.communicate('.status dir scheduled days=%d\n' % days)
+
+        stdout = self.send_command('.status dir scheduled days=%d\n' % days)
 
         #if stderr.strip():
         #    pass  # TODO: display flash?
@@ -148,6 +160,64 @@ class BConsole(object):
             })
 
         return jobs
+
+    def mount_storage(self, storage, slot):
+        """Mounts the volume contained in the slot *slot* on the storage *storage*"""
+
+        stdout = self.send_command('mount=%s slot=%d\n' % (storage,slot))
+
+        is_ok = stdout.find('is mounted')
+
+        return is_ok != -1
+
+
+    def unmount_storage(self, storage):
+        """Unmounts the storage *storage*"""
+        stdout = self.send_command('unmount=%s \n' % storage)
+
+        is_ok = stdout.find('unmounted')
+
+        return is_ok != -1 
+
+
+    def delete(self, volume=None, jobid=None):
+        """Deletes an object"""
+
+        if not volume and not jobid:
+            return False # what you want to delete?
+
+        if volume:
+            cmd = ' volume=%s\nyes' % (volume)
+        if jobid:
+            cmd = ' jobid=%d ' % (jobid)
+
+        strcmd = 'delete %s \n' % cmd
+
+        stdout = self.send_command(strcmd)
+
+        is_ok = stdout.find('deleted')
+
+        return is_ok != -1 
+
+    def create_label(self, pool, storage='', label = None, barcode = False ):
+        """Create a new label"""
+
+        if not label and not barcode:
+            return False # we need or manual label or barcode
+
+        strcmd = 'label pool=%s storage=%s' % (pool,storage)
+     
+        if barcode:
+            strcmd += ( " barcode\n" )
+        else:
+            strcmd += ( "\n%s\n" % label )
+
+        stdout = self.send_command(strcmd)
+
+        is_ok = stdout.find('successfully created')
+
+        return is_ok != -1 
+
 
     def send_command_by_polling(self, command, process=None):
         """"""
@@ -185,3 +255,4 @@ class BConsole(object):
                 output = nl2br(output)
 
                 return process, {"commands": [output]}
+
