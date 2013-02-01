@@ -26,6 +26,8 @@
                 <th>Priority</th>
                 <th>Scheduled</th>
                 <th>Volume</th>
+		<th>Enabled</th>
+		<th>Select</th>
             </tr>
         </thead>
         <tbody>
@@ -37,10 +39,13 @@
                     <td>{{ job.priority }}</td>
                     <td>{{ job.date }} {{ job.time }}</td>
                     <td>{{ job.volume }}</td>
+                    <td>{{ job.enabled }}</td>
+		    <td><input type="checkbox" /></td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
 {%- endmacro %}
 
 {% macro jobs_table(request, jobs) -%}

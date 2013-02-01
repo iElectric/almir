@@ -144,7 +144,36 @@ class BConsole(object):
         except IndexError:
             return []
 
+        # get the list of disabled jobs
+        stdout = self.send_command('show disabled\n')
+
+#        example of header: 
+#        1000 OK: localhost-dir Version: 5.2.6 (21 February 2012)
+#        Enter a period to cancel a command.
+#        show disabled
+#        Disabled Jobs:
+#        BackupCatalog
+#
+
+        if stdout.find('No disabled Jobs.') == -1 :
+            disabled=[x.strip() for x in stdout.split('\n')[4:-1] if x!='Disabled Jobs:'] 
+        else:
+            disabled=[]
+
         jobs = []
+
+        for job in disabled:
+            jobs.append({
+                         'level': '',
+                         'type': '',
+                         'priority': '',
+                         'date': '',
+                         'time': '',
+                         'name': job,
+                         'volume': '',
+                         'enabled': 'Y' ,
+            })
+
         for line in unparsed_jobs.split('\n'):
             if not line.strip():
                 continue
@@ -157,6 +186,7 @@ class BConsole(object):
                          'time': line[38:44].strip(),
                          'name': line[47:67].strip(),
                          'volume': line[67:].strip(),
+                         'enabled': 'N' ,
             })
 
         return jobs
