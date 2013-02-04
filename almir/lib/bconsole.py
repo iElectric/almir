@@ -131,19 +131,7 @@ class BConsole(object):
             # TODO: stderr why job failed?
             return False
 
-    def get_upcoming_jobs(self, days=1):
-        """"""
-
-        stdout = self.send_command('.status dir scheduled days=%d\n' % days)
-
-        #if stderr.strip():
-        #    pass  # TODO: display flash?
-
-        try:
-            unparsed_jobs = stdout.split('===================================================================================\n')[1].split('====\n')[0]
-        except IndexError:
-            return []
-
+    def get_disabled_jobs(self):
         # get the list of disabled jobs
         stdout = self.send_command('show disabled\n')
 
@@ -163,16 +151,25 @@ class BConsole(object):
         jobs = []
 
         for job in disabled:
-            jobs.append({
-                         'level': '',
-                         'type': '',
-                         'priority': '',
-                         'date': '',
-                         'time': '',
-                         'name': job,
-                         'volume': '',
-                         'enabled': 'Y' ,
+            jobs.append({'name': job,
             })
+
+        return jobs
+        
+    def get_upcoming_jobs(self, days=1):
+        """"""
+
+        stdout = self.send_command('.status dir scheduled days=%d\n' % days)
+
+        #if stderr.strip():
+        #    pass  # TODO: display flash?
+
+        try:
+            unparsed_jobs = stdout.split('===================================================================================\n')[1].split('====\n')[0]
+        except IndexError:
+            return []
+
+        jobs = []
 
         for line in unparsed_jobs.split('\n'):
             if not line.strip():
@@ -186,10 +183,10 @@ class BConsole(object):
                          'time': line[38:44].strip(),
                          'name': line[47:67].strip(),
                          'volume': line[67:].strip(),
-                         'enabled': 'N' ,
             })
 
         return jobs
+
 
     def mount_storage(self, storage, slot):
         """Mounts the volume contained in the slot *slot* on the storage *storage*"""
