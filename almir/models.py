@@ -227,6 +227,10 @@ class Job(ModelMixin, Base):
         if appstruct and appstruct['state'] == 'scheduled':
             return BConsole().get_upcoming_jobs()
 
+
+        if appstruct and appstruct['state'] == 'disabled':
+            return BConsole().get_disabled_jobs()
+
         query = cls.query.options(joinedload(cls.status), joinedload(cls.client))
         if appstruct:
             if appstruct['status']:

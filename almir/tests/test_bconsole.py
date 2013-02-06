@@ -88,10 +88,7 @@ Full           Backup    11  18-Mar-12 23:10    BackupCatalog      *unknown*
         b = BConsole()
         with patch.object(b, 'start_process') as mock_method:
             start_process = mock_method.return_value
-            start_process.communicate.return_value = ("""1000 OK: localhost-dir Version: 5.2.6 (21 February 2012)
-Enter a period to cancel a command.
-show disabled          
-Disabled Jobs:
+            start_process.communicate.return_value = ("""Disabled Jobs:
     Backupclient1
 """, '')
 

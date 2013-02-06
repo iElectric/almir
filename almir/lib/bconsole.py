@@ -75,6 +75,13 @@ class BConsole(object):
         stdout, stderr = p.communicate(cmd)
         log.debug('Command output by bconsole:')
         log.debug(stdout)
+        # cleaning stdout from connection info
+        # removing firsts four lines
+#        for i in range(3):
+#            stdout = stdout[:stdout.find('\n')] 
+
+        # removinf you have messages. msg
+        stdout = stdout.replace('You have messages.\n','') 
         return stdout
 
     def is_running(self):
@@ -136,17 +143,17 @@ class BConsole(object):
         stdout = self.send_command('show disabled\n')
 
 #        example of header: 
-#        1000 OK: localhost-dir Version: 5.2.6 (21 February 2012)
-#        Enter a period to cancel a command.
-#        show disabled
 #        Disabled Jobs:
 #        BackupCatalog
 #
 
-        if stdout.find('No disabled Jobs.') == -1 :
-            disabled=[x.strip() for x in stdout.split('\n')[4:-1] if x!='Disabled Jobs:'] 
-        else:
-            disabled=[]
+
+        try:
+            unparsed_jobs = stdout.split('Disabled Jobs:\n')[1]
+        except IndexError:
+            return []
+
+        disabled=[x.strip() for x in unparsed_jobs.split('\n') if len(x)>1] 
 
         jobs = []
 
