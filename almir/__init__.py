@@ -102,6 +102,11 @@ def main(global_config, **settings):
                     renderer='json',
                     request_method='GET')
 
+    config.add_route('modify_storage', '/storage/modify')
+    config.add_view('almir.views.modify_storage',
+                    route_name='modify_storage',
+                    request_method='POST')
+
     # exception handling views
     config.add_view('almir.views.httpexception',
                     context=HTTPError,

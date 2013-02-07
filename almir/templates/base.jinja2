@@ -48,9 +48,11 @@
   {% endblock  %}
 </head>
 <body>
+
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
+
        <a class="brand" href="{{ request.route_url('about') }}">Almir</a>
        {% for item in navigation_tree %}
         <ul class="nav">
@@ -67,6 +69,17 @@
       </div>
     </div>
   </div>
+
+
+
+    {% if request.params.get('okmsg') %}
+      <div class="okmessage">Ok: {{ request.params.get('okmsg') }}</div>
+    {% endif %}
+
+    {% if request.params.get('errormsg') %}
+      <div class="errormessage">Error: {{ request.params.get('errormsg') }}</div>
+    {% endif %}
+
 
   <div class="container-fluid">
    <div class="row-fluid">

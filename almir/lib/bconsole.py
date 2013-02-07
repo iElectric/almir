@@ -195,7 +195,7 @@ class BConsole(object):
         return jobs
 
 
-    def mount_storage(self, storage, slot):
+    def mount_storage(self, storage, slot=0):
         """Mounts the volume contained in the slot *slot* on the storage *storage*"""
 
         cmd = 'mount=%s slot=%d\n' % (storage,slot)

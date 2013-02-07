@@ -4,6 +4,9 @@ import collections
 from deform import Form, ValidationFailure
 from pyramid.interfaces import IRoutesMapper
 from pyramid.settings import asbool
+from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound
+
 from sqlalchemy import String, LargeBinary
 from sqlalchemy.sql.expression import desc, or_
 from sqlalchemy.sql.functions import sum, count
@@ -296,3 +299,40 @@ def datatables(request):
             'iTotalRecords': total_records,
             'aaData': aaData,
     }
+
+
+def modify_storage(request):
+    bc = BConsole()
+
+    enderer='templates/storage_list.jinja2',
+
+    storages = ['File',]
+
+    log.debug('###################################')
+    log.debug(request.params)
+    log.debug('###################################')
+    
+    command = request.POST.get('command')
+    if command == 'unmount':
+        ret = {'okmsg':'Storage unmounted correctly'}
+        for storage in storages:
+            if not bc.unmount_storage(storage):
+                msg = 'Error unmounting storage: %s' % storage
+                log.info(msg)
+                ret = {'errormsg':msg}
+                break
+    else:
+        ret = {'okmsg':'Storage mounted correctly'}
+        for storage in storages:
+            if not bc.mount_storage(storage):
+                msg = 'Error mounting storage: %s' % storage
+                log.info(msg)
+                ret = {'errormsg':msg}                
+                break
+    
+    redirect_url = request.route_url('storage_list', _query=ret)
+    response = HTTPFound(location=redirect_url)
+    
+    return response
+
+

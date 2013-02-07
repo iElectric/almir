@@ -3,7 +3,13 @@
 {% block container %}
     <h1 class="view">Storage <small>list</small></h1>
     <h2>By name</h2>
-    <table class="table table-bordered datatables">
+
+    <form action="modify" method="POST">
+    <div id="commands_buttons_bar">
+    	  <input name="command" type="submit" value="mount" />
+    	  <input name="command" type="submit" value="unmount" />	
+   </div>
+    <table id="list_storages" class="table table-bordered datatables">
         <thead>
             <tr>
                 <th>Name</th>
@@ -18,9 +24,13 @@
                     <td>{{ macros.link(storage.Storage.render_name(request)) }}</td>
                     <td>{{ storage.num_volumes }}</td>
                     <td>{{ storage.Storage.format_byte_size(storage.total_backup_size) }}</td>
-		    <td><input type="checkbox" /></td>
+		    <td><input name="storage" type="checkbox" value ="{{ storage.Storage.name }}"  /></td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+   <input name="storage" type="checkbox" value ="File"  />
+    </form>
+
 {% endblock %}
