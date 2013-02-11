@@ -80,7 +80,7 @@ class BConsole(object):
 #        for i in range(3):
 #            stdout = stdout[:stdout.find('\n')] 
 
-        # removinf you have messages. msg
+        # removing you have messages. msg
         stdout = stdout.replace('You have messages.\n','') 
         return stdout
 
@@ -214,6 +214,26 @@ class BConsole(object):
         is_ok = stdout.find('unmounted')
 
         return is_ok != -1 
+
+
+    def release(self, storage):
+        """Releases the storage *storage*"""
+        cmd = 'release=%s \n' % storage
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('released')
+
+        return is_ok != -1 
+
+
+    def update_slots(self):
+        """Update slots"""
+        cmd = 'update slots\n'
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('error')
+
+        return is_ok == -1 
 
 
     def delete(self, volume=None, jobid=None):
