@@ -35,7 +35,7 @@
                     <td>{{ job.type }}</td>
                     <td>{{ job.level }}</td>
                     <td>{{ job.priority }}</td>
-                    <td>{{ job.date }} {{ job.time }}</td>
+                    <td>{{ job.date.decode('utf-8') }} {{ job.time }}</td>
                     <td>{{ job.volume }}</td>
                 </tr>
             {% endfor %}
