@@ -88,7 +88,7 @@ $(function () {
                 },
                 "oTableTools": {
                     sSwfPath: tabletools_swf,
-                    aButtons: ["copy", "xls", "pdf", "print"]
+                    aButtons: ["copy", "csv", "pdf", "print"]
                 },
                 "iDisplayLength": 50,
                 "bDestroy": true,
@@ -99,11 +99,11 @@ $(function () {
                             href;
                         // clickable-row
                         href = $this.find('td:first a').attr('href');
-                        if (typeof href == 'string') {
+                        /*if (typeof href == 'string') {
                             $this.addClass('clickable-row').click(function (e) {
                                 window.location = href;
                             });
-                        }
+                        }  commented out.. is not usable when there are dropboxes in the rows, we can adjust it?*/
                     });
                 }
             };

@@ -6,6 +6,7 @@ from almir.models import TYPES, VOLUME_STATUS_SEVERITY
 job_states = (
     ('finished+running', 'Finished + Running'),
     ('scheduled', 'Scheduled'),
+    ('disabled', 'Disabled'),
 )
 
 

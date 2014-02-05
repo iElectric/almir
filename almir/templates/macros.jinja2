@@ -26,6 +26,7 @@
                 <th>Priority</th>
                 <th>Scheduled</th>
                 <th>Volume</th>
+		<th>Select</th>
             </tr>
         </thead>
         <tbody>
@@ -37,11 +38,36 @@
                     <td>{{ job.priority }}</td>
                     <td>{{ job.date }} {{ job.time }}</td>
                     <td>{{ job.volume }}</td>
+		    <td><input type="checkbox" /></td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
 {%- endmacro %}
+
+
+{% macro disabled_jobs_table(request, jobs) -%}
+    <table class="table table-bordered datatables">
+        <thead>
+            <tr>
+                <th>Name</th>
+		<th>Select</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+                <tr>
+                    <td>{{ job.name }}</td>
+		    <td><input type="checkbox" /></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{%- endmacro %}
+
+
 
 {% macro jobs_table(request, jobs) -%}
     <table class="table table-bordered datatables">

@@ -8,7 +8,11 @@ from contextlib import contextmanager
 from subprocess import Popen, PIPE
 from pyramid.threadlocal import get_current_registry
 
-from almir.lib.utils import nl2br
+#from almir.lib.utils import nl2br
+from utils import nl2br
+
+import logging
+log = logging.getLogger(__name__) 
 
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -68,6 +72,21 @@ class BConsole(object):
     def start_process(self):
         return Popen(shlex.split(self.bconsole_command), stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
+    def send_command(self, cmd):
+        log.debug('Sending command to bconsole: %s' % cmd)
+        p = self.start_process()
+        stdout, stderr = p.communicate(cmd)
+        log.debug('Command output by bconsole:')
+        log.debug(stdout)
+        # cleaning stdout from connection info
+        # removing firsts four lines
+#        for i in range(3):
+#            stdout = stdout[:stdout.find('\n')] 
+
+        # removing you have messages. msg
+        stdout = stdout.replace('You have messages.\n','') 
+        return stdout
+
     def is_running(self):
         try:
             self.get_version()
@@ -76,8 +95,8 @@ class BConsole(object):
             return False
 
     def get_version(self):
-        p = self.start_process()
-        stdout, stderr = p.communicate('version\n')
+        stdout = self.send_command('version\n')
+
         version = filter(lambda s: 'Version' in s, stdout.split('\n'))
         if version:
             return version[-1]
@@ -85,8 +104,8 @@ class BConsole(object):
             raise DirectorNotRunning
 
     def get_jobs_settings(self):
-        p = self.start_process()
-        stdout, stderr = p.communicate('show job')
+        stdout = self.send_command('show job\n')
+
         jobs = []
         for job in stdout.split('Job:'):
             jobs.append(JOBS_DEF_RE.find(stdout))
@@ -114,18 +133,43 @@ class BConsole(object):
         if when:
             cmd += " when=%s" % when
 
-        p = self.start_process()
-        stdout, stderr = p.communicate(cmd + "\nyes\n")
+        stdout =  self.send_command(cmd + "\nyes\n")
+
         if True:
             return "jobid"
         else:
             # TODO: stderr why job failed?
             return False
 
+    def get_disabled_jobs(self):
+        # get the list of disabled jobs
+        stdout = self.send_command('show disabled\n')
+
+#        example of header: 
+#        Disabled Jobs:
+#        BackupCatalog
+#
+
+
+        try:
+            unparsed_jobs = stdout.split('Disabled Jobs:\n')[1]
+        except IndexError:
+            return []
+
+        disabled=[x.strip() for x in unparsed_jobs.split('\n') if len(x)>1] 
+
+        jobs = []
+
+        for job in disabled:
+            jobs.append({'name': job,
+            })
+
+        return jobs
+        
     def get_upcoming_jobs(self, days=1):
         """"""
-        p = self.start_process()
-        stdout, stderr = p.communicate('.status dir scheduled days=%d\n' % days)
+
+        stdout = self.send_command('.status dir scheduled days=%d\n' % days)
 
         #if stderr.strip():
         #    pass  # TODO: display flash?
@@ -136,6 +180,7 @@ class BConsole(object):
             return []
 
         jobs = []
+
         for line in unparsed_jobs.split('\n'):
             if not line.strip():
                 continue
@@ -151,6 +196,126 @@ class BConsole(object):
             })
 
         return jobs
+
+
+    def mount_storage(self, storage, slot=0):
+        """Mounts the volume contained in the slot *slot* on the storage *storage*"""
+
+        cmd = 'mount=%s slot=%d\n' % (storage,slot)
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('is mounted')
+
+        return is_ok != -1
+
+
+    def unmount_storage(self, storage):
+        """Unmounts the storage *storage*"""
+        cmd = 'unmount=%s \n' % storage
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('unmounted')
+
+        return is_ok != -1 
+
+
+    def release(self, storage):
+        """Releases the storage *storage*"""
+        cmd = 'release=%s \n' % storage
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('released')
+
+        return is_ok != -1 
+
+
+    def update_slots(self):
+        """Update slots"""
+        cmd = 'update slots\n'
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('error')
+
+        return is_ok == -1 
+
+
+    def delete(self, volume=None, jobid=None):
+        """Deletes an object"""
+
+        if not volume and not jobid:
+            return False # what you want to delete?
+
+        if volume:
+            cmd = ' volume=%s\nyes' % (volume)
+        if jobid:
+            cmd = ' jobid=%d ' % (jobid)
+
+        cmd = 'delete %s \n' % cmd
+
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('deleted')
+
+        return is_ok != -1 
+
+    def create_label(self, pool, storage='', label = None, barcode = False ):
+        """Create a new label"""
+
+        if not label and not barcode:
+            return False # we need or manual label or barcode
+
+        cmd = 'label pool=%s storage=%s' % (pool,storage)
+     
+        if barcode:
+            cmd += ( " barcode\n" )
+        else:
+            cmd += ( "\n%s\n" % label )
+
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('successfully created')
+
+        return is_ok != -1 
+
+
+    def enable_job(self, jobname ):
+        """Enables job named as passed by argument"""
+
+        cmd = 'enable job=%s\n' % jobname
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('enabled')
+
+        return is_ok != -1 
+
+
+    def disable_job(self, jobname):
+        """Disables job named as passed by argument"""
+
+        cmd = 'disable job=%s\n' % jobname
+        stdout = self.send_command(cmd)
+
+        is_ok = stdout.find('disabled')
+
+        return is_ok != -1 
+
+
+    def estimate_job(self, jobname ):
+        """Estimates a job returns -1,-1 if something goes wrong"""
+
+        cmd = 'estimate job=%s\n' % jobname
+        stdout = self.send_command(cmd)
+
+        try:
+            retcode, files, bytes = re.findall('\\d+',stdout.replace(',',''))
+        except ValueError:
+            retcode = -1
+
+        if int(retcode) != 2000:
+            return -1,-1
+        else:
+            return int(files), int(bytes)
+
 
     def send_command_by_polling(self, command, process=None):
         """"""
@@ -188,3 +353,4 @@ class BConsole(object):
                 output = nl2br(output)
 
                 return process, {"commands": [output]}
+

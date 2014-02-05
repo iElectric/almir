@@ -2,8 +2,13 @@
 
 {% block content %}
     <h1 class="view">Job <small>list</small></h1>
+
     {% if appstruct.state == 'scheduled' %}
+        <input type="submit" value="disable" />
         {{ macros.upcoming_jobs_table(request, objects) }}
+    {% elif appstruct.state == 'disabled' %}
+        <input type="submit" value="enable" />
+        {{ macros.disabled_jobs_table(request, objects) }}
     {% else %}
         <table id="list_jobs" class="table table-bordered datatables">
         </table>
