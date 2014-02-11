@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import time
 import unittest2
 from subprocess import Popen, PIPE
@@ -61,6 +63,7 @@ Director {
 Scheduled Jobs:
 Level          Type     Pri  Scheduled          Name               Volume
 ===================================================================================
+Incremental    Backup    10  07-aoû2013 00:12   srv-prdadm-21_BOS  DISK_sem-0004
                Admin      8  18-Apr-12 20:30    UpdateSlots
 Differential   Backup    10  18-Mar-12 23:05    BackupClient1      *unknown*
 Full           Backup    11  18-Mar-12 23:10    BackupCatalog      *unknown*
@@ -68,27 +71,19 @@ Full           Backup    11  18-Mar-12 23:10    BackupCatalog      *unknown*
 """, '')
 
             jobs = b.get_upcoming_jobs()
-            self.assertEqual(jobs, [{'date': '18-Apr-12',
-                                     'level': '',
-                                     'name': 'UpdateSlots',
-                                     'time': '20:30',
-                                     'priority': '8',
-                                     'type': 'Admin',
-                                     'volume': ''},
-                                    {'date': '18-Mar-12',
-                                     'level': 'Differential',
-                                     'name': 'BackupClient1',
-                                     'priority': '10',
-                                     'time': '23:05',
-                                     'type': 'Backup',
-                                     'volume': '*unknown*'},
-                                    {'date': '18-Mar-12',
-                                     'level': 'Full',
-                                     'name': 'BackupCatalog',
-                                     'priority': '11',
-                                     'time': '23:10',
-                                     'type': 'Backup',
-                                     'volume': '*unknown*'}])
+            self.assertEqual(str(jobs).decode('utf-8'),
+                             u"[{'volume': 'DISK_sem-0004', 'name':"
+                             " 'srv-prdadm-21_BOS', 'level': 'Incremental',"
+                             " 'priority': '10', 'time': '00:12', 'date':"
+                             " '07-ao\\xc3\\xbb2013', 'type': 'Backup'},"
+                             " {'priority': '18-Apr-12', 'date': '20:30',"
+                             " 'time': 'UpdateSlots', 'type': '8', 'level': 'Admin'},"
+                             " {'volume': '*unknown*', 'name': 'BackupClient1',"
+                             " 'level': 'Differential', 'priority': '10', "
+                             "'time': '23:05', 'date': '18-Mar-12', 'type': 'Backup'},"
+                             " {'volume': '*unknown*', 'name': 'BackupCatalog', "
+                             "'level': 'Full', 'priority': '11', 'time': '23:10',"
+                             " 'date': '18-Mar-12', 'type': 'Backup'}]")
 
     def test_send_command_by_polling(self):
         b = BConsole()
