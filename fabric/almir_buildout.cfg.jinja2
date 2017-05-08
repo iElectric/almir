@@ -1,0 +1,27 @@
+[buildout]
+extends = buildout.d/production.cfg
+
+[almir]
+# define sql database connection as specified in
+# http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
+#sqla_engine_url = sqlite:///{{db.abs_path}}
+#sqla_engine_url = postgresql+pg8000://{{db.username}}:{{db.password}}@{{db.host}}/{{db.name}}
+#sqla_engine_url = mysql+mysqlconnector://{{db.username}}:{{db.password}}@{{db.host}}/{{db.name}}
+#sqla_engine_url = %(engine)s
+
+# your timezone from TZ* column in table https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+# if not set, defaults to system timezone
+timezone = {{timezone}}
+#timezone = %(timezone)s
+
+# configure http daemon
+host = {{almir.listen_ip}}
+port = {{almir.port}}
+
+# bconsole director parameters
+director_name = {{almir.dir_name}}
+director_port = {{almir.dir_port}}
+director_address = {{almir.dir_address}}
+director_password = {{almir.bc_password}}
+
+
